@@ -50,7 +50,7 @@ cp ./target/release/$APP_NAME /bin/server
 # (e.g., alpine@sha256:664888ac9cfd28068e062c991ebcff4b4c7307dc8dd4df9e728bedde5c449d91).
 FROM alpine:3.18 AS final
 
-ARG GOOGLE_CREDENTIALS_JSON
+
 
 # Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/go/dockerfile-user-best-practices/
@@ -67,12 +67,10 @@ USER appuser
 
 # Copy the executable from the "build" stage.
 COPY --from=build /bin/server /bin/
-COPY frontandroid-ab001-5c1dd8b95f9b.json $GOOGLE_APPLICATION_CREDENTIALS
-RUN mkdir -p /apinotificacion
-ENV GOOGLE_APPLICATION_CREDENTIALS="/apinotificacion/frontandroid-ab001-5c1dd8b95f9b.json"
+
 
 # Escribir credenciales en un archivo dentro del contenedor
-RUN echo "$GOOGLE_CREDENTIALS_JSON" > $GOOGLE_APPLICATION_CREDENTIALS
+
 
 
 # Expose the port that the application listens on.

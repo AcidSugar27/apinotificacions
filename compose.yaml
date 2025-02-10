@@ -12,15 +12,13 @@ services:
     build:
       context: .
       target: final
-      args:
-        - GOOGLE_CREDENTIALS_JSON=${GOOGLE_CREDENTIALS_JSON}
+      
     ports:
       - 8081:8081
       
     environment:
-      GOOGLE_APPLICATION_CREDENTIALS: "/apinotificacion/frontandroid-ab001-5c1dd8b95f9b.json"
-    volumes:
-      - ./frontandroid-ab001-5c1dd8b95f9b.json:/apinotificacion/frontandroid-ab001-5c1dd8b95f9b.json:ro
+      - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_CREDENTIALS_JSON}
+    
     
 
 # The commented out section below is an example of how to define a PostgreSQL
