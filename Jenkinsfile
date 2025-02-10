@@ -1,8 +1,6 @@
 pipeline {
     agent any
-    tools {
-        maven 'mvn'  
-    }
+    
 
     environment {
         DOCKER_IMAGE = "acidugar27/apinotificacions"
