@@ -16,26 +16,26 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'mvn clean package'  // Ajusta esto según tu proyecto
+                bat 'mvn clean package'  // Usamos 'bat' para ejecutar el comando en Windows
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'mvn test'  // Si tienes pruebas, de lo contrario, omite
+                bat 'mvn test'  // Ejecuta las pruebas si las tienes configuradas
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $DOCKER_IMAGE .'
+                bat 'docker build -t %DOCKER_IMAGE% .'  // Usamos '%' para las variables de entorno en Windows
             }
         }
 
         stage('Push Docker Image') {
             steps {
                 withDockerRegistry([credentialsId: 'docker-hub-cred', url: 'https://index.docker.io/v1/']) {
-                    sh 'docker push $DOCKER_IMAGE'
+                    bat 'docker push %DOCKER_IMAGE%'  // Usamos '%' para las variables de entorno en Windows
                 }
             }
         }
@@ -43,12 +43,12 @@ pipeline {
         stage('Deploy to Server') {
             steps {
                 sshagent(['jenkins-ssh-key']) {
-                    sh """
-                    ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP << EOF
-                    docker pull $DOCKER_IMAGE
+                    bat """
+                    ssh -o StrictHostKeyChecking=no %SERVER_USER%@%SERVER_IP% << EOF
+                    docker pull %DOCKER_IMAGE%
                     docker stop apinotificacions || true
                     docker rm apinotificacions || true
-                    docker run -d -p 8081:8081 --name apinotificacions $DOCKER_IMAGE
+                    docker run -d -p 8081:8081 --name apinotificacions %DOCKER_IMAGE%
                     EOF
                     """
                 }
