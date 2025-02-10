@@ -65,7 +65,8 @@ USER appuser
 
 # Copy the executable from the "build" stage.
 COPY --from=build /bin/server /bin/
-COPY ./frontandroid-ab001-5c1dd8b95f9b.json /apinotificacion/frontandroid-ab001-5c1dd8b95f9b.json
+COPY frontandroid-ab001-5c1dd8b95f9b.json /apinotificacion/frontandroid-ab001-5c1dd8b95f9b.json
+
 
 # Expose the port that the application listens on.
 EXPOSE 8081
