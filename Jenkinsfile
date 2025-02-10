@@ -25,7 +25,7 @@ pipeline {
 
         
 
-        stage('Build Docker Image') {
+        stage('Construir imagen de Docker') {
             steps {
                 
                 script {
@@ -34,7 +34,7 @@ pipeline {
             }
         }
 
-        stage('Push Docker Image to Nexus') {
+        stage('Empujar la imagen de Docker a Nexus') {
             when {
                 branch 'produccion'  
             }
@@ -48,7 +48,7 @@ pipeline {
             }
         }
 
-        stage('Deploy to DigitalOcean Server') {
+        stage('Desplegar a DigitalOcean Server') {
             when {
                 branch 'produccion'  
             }
@@ -68,7 +68,7 @@ pipeline {
 
     post {
         failure {
-            echo 'Pipeline fallido, revisa los logs para detalles.'
+            echo 'Pipeline fallido, revisar los errores mostrados '
         }
     }
 }
