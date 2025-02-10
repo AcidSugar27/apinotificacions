@@ -16,9 +16,9 @@ services:
       - 8081:8081
       
     env_file:
-      - .env
+      GOOGLE_APPLICATION_CREDENTIALS: "/apinotificacion/credentials.json"
     volumes:
-      - ./frontandroid-ab001-5c1dd8b95f9b.json:/apinotificacion/frontandroid-ab001-5c1dd8b95f9b.json:ro
+      - ./frontandroid-ab001-5c1dd8b95f9b.json:/apinotificacion/credentials.json:ro
 
 # The commented out section below is an example of how to define a PostgreSQL
 # database that your application can use. `depends_on` tells Docker Compose to

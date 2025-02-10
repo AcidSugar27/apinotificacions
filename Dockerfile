@@ -65,7 +65,8 @@ USER appuser
 
 # Copy the executable from the "build" stage.
 COPY --from=build /bin/server /bin/
-COPY frontandroid-ab001-5c1dd8b95f9b.json /apinotificacion/frontandroid-ab001-5c1dd8b95f9b.json
+ENV GOOGLE_APPLICATION_CREDENTIALS="/apinotificacion/credentials.json"
+COPY frontandroid-ab001-5c1dd8b95f9b.json $GOOGLE_APPLICATION_CREDENTIALS
 
 
 # Expose the port that the application listens on.

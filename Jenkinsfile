@@ -8,6 +8,7 @@ pipeline {
         SERVER_USER = "root"
         NEXUS_URL = "http://localhost:8081/repository/docker-hosted/"
         DOCKER_CREDENTIALS = "docker-cred"  
+        GOOGLE_CREDENTIALS_JSON = credentials('GOOGLE_CREDENTIALS_JSON')
     }
 
     stages {
@@ -27,9 +28,8 @@ pipeline {
 
         stage('Construir imagen de Docker') {
             steps {
-                
                 script {
-                    bat "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
+                    bat "docker build --build-arg GOOGLE_CREDENTIALS_JSON=${GOOGLE_CREDENTIALS_JSON} -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
                 }
             }
         }
