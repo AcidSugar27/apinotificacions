@@ -6,7 +6,7 @@ pipeline {
         DOCKER_TAG = "latest"
         SERVER_IP = "159.89.191.115"
         SERVER_USER = "root"
-        NEXUS_URL = "localhost:5001" ´
+        NEXUS_URL = "localhost:5001" 
         NEXUS_USER = "admin" 
         NEXUS_PASSWORD = "amarante" 
         DOCKER_CREDENTIALS = "docker-cred"  
