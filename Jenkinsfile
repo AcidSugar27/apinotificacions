@@ -27,7 +27,7 @@ pipeline {
             steps {
                 // Usar cargo para compilar la aplicación Rust
                 script {
-                    sh 'cargo build --release'
+                    bat 'cargo build --release'
                 }
             }
         }
@@ -36,7 +36,7 @@ pipeline {
             steps {
                 // Construir la imagen Docker
                 script {
-                    sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
+                    bat "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
                 }
             }
         }
@@ -45,9 +45,9 @@ pipeline {
             steps {
                 // Subir la imagen Docker al repositorio Nexus
                 script {
-                    sh "docker login -u ${NEXUS_USER} -p ${NEXUS_PASSWORD} ${NEXUS_URL}"
-                    sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${NEXUS_URL}${DOCKER_IMAGE}:${DOCKER_TAG}"
-                    sh "docker push ${NEXUS_URL}${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    bat "docker login -u ${NEXUS_USER} -p ${NEXUS_PASSWORD} ${NEXUS_URL}"
+                    bat "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${NEXUS_URL}${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    bat "docker push ${NEXUS_URL}${DOCKER_IMAGE}:${DOCKER_TAG}"
                 }
             }
         }
@@ -56,7 +56,7 @@ pipeline {
             steps {
                 // Desplegar la imagen Docker en el servidor remoto usando SSH
                 script {
-                    sh """
+                    bat """
                     ssh -o StrictHostKeyChecking=no ${SERVER_USER}@${SERVER_IP} "
                         docker pull ${NEXUS_URL}${DOCKER_IMAGE}:${DOCKER_TAG} &&
                         docker run -d ${DOCKER_IMAGE}:${DOCKER_TAG}
