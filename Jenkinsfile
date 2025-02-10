@@ -1,61 +1,75 @@
 pipeline {
     agent any
-    tools {
-        maven 'mvn'  
-    }
-
+    
     environment {
         DOCKER_IMAGE = "acidugar27/apinotificacions"
+        DOCKER_TAG = "latest"
         SERVER_IP = "159.89.191.115"
         SERVER_USER = "root"
+        NEXUS_URL = "http://localhost:8081/repository/docker-hosted/"
+        DOCKER_CREDENTIALS = "docker-hub-credentials"  // Reemplaza con tus credenciales Docker
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'produccion', url: 'https://github.com/AcidSugar27/apinotificacions.git'
+                // Verifica que no se haga un checkout si la rama es 'master' o 'main'
+                script {
+                    if (env.BRANCH_NAME == 'main' || env.BRANCH_NAME == 'master') {
+                        error "La rama ${env.BRANCH_NAME} está protegida, no se pueden realizar despliegues."
+                    }
+                }
+                checkout scm
             }
         }
 
-        stage('Build') {
+        stage('Build Rust Application') {
             steps {
-                bat 'mvn clean package'  // Usamos 'bat' para ejecutar el comando en Windows
-            }
-        }
-
-        stage('Run Tests') {
-            steps {
-                bat 'mvn test'  // Ejecuta las pruebas si las tienes configuradas
+                // Usar cargo para compilar la aplicación Rust
+                script {
+                    sh 'cargo build --release'
+                }
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                bat 'docker build -t %DOCKER_IMAGE% .'  // Usamos '%' para las variables de entorno en Windows
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
-                withDockerRegistry([credentialsId: 'docker-hub-cred', url: 'https://index.docker.io/v1/']) {
-                    bat 'docker push %DOCKER_IMAGE%'  // Usamos '%' para las variables de entorno en Windows
+                // Construir la imagen Docker
+                script {
+                    sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
                 }
             }
         }
 
-        stage('Deploy to Server') {
+        stage('Push Docker Image to Nexus') {
             steps {
-                sshagent(['jenkins-ssh-key']) {
-                    bat """
-                    ssh -o StrictHostKeyChecking=no %SERVER_USER%@%SERVER_IP% << EOF
-                    docker pull %DOCKER_IMAGE%
-                    docker stop apinotificacions || true
-                    docker rm apinotificacions || true
-                    docker run -d -p 8081:8081 --name apinotificacions %DOCKER_IMAGE%
-                    EOF
+                // Subir la imagen Docker al repositorio Nexus
+                script {
+                    sh "docker login -u ${NEXUS_USER} -p ${NEXUS_PASSWORD} ${NEXUS_URL}"
+                    sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${NEXUS_URL}${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    sh "docker push ${NEXUS_URL}${DOCKER_IMAGE}:${DOCKER_TAG}"
+                }
+            }
+        }
+
+        stage('Deploy to DigitalOcean Server') {
+            steps {
+                // Desplegar la imagen Docker en el servidor remoto usando SSH
+                script {
+                    sh """
+                    ssh -o StrictHostKeyChecking=no ${SERVER_USER}@${SERVER_IP} "
+                        docker pull ${NEXUS_URL}${DOCKER_IMAGE}:${DOCKER_TAG} &&
+                        docker run -d ${DOCKER_IMAGE}:${DOCKER_TAG}
+                    "
                     """
                 }
             }
+        }
+    }
+
+    post {
+        failure {
+            echo 'Pipeline fallido, revisa los logs para detalles.'
         }
     }
 }
