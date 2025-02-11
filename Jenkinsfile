@@ -53,20 +53,21 @@ pipeline {
         }
 
         stage('Desplegar a DigitalOcean Server') {
+
+    steps {
+
+        script {
             
-            steps {
-                script {
-                    
-                    bat """
-                    ssh -o StrictHostKeyChecking=no ${SERVER_USER}@${SERVER_IP} "
-                        docker login -u ${NEXUS_USER}  ${NEXUS_PASSWORD} --password-stdin ${NEXUS_URL} &&
-                        docker pull ${NEXUS_URL}/docker-hosted/${DOCKER_IMAGE}:${DOCKER_TAG} &&
-                        docker run -d -p 8084:8081 ${NEXUS_URL}/docker-hosted/${DOCKER_IMAGE}:${DOCKER_TAG}
-                    "
-                    """
-                }
-            }
+            bat """
+            ssh -o StrictHostKeyChecking=no ${SERVER_USER}@${SERVER_IP} "
+                echo ${NEXUS_PASSWORD} | docker login -u ${NEXUS_USER} --password-stdin ${NEXUS_URL} &&
+                docker pull ${NEXUS_URL}/docker-hosted/${DOCKER_IMAGE}:${DOCKER_TAG} &&
+                docker run -d -p 8084:8081 ${NEXUS_URL}/docker-hosted/${DOCKER_IMAGE}:${DOCKER_TAG}
+            "
+            """
         }
+    }
+}
     }
 
     post {
